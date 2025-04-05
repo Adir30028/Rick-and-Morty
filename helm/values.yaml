@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  username: ""                   # ← נוסיף את שם המשתמש כאן
+  name: rick-api                 # ← השם של התמונה עצמה
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 5000
+
+ingress:
+  enabled: true
+  host: rick.local
+  path: /
+
+resources: {}
