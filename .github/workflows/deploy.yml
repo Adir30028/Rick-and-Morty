@@ -59,6 +59,17 @@ jobs:
           echo "Waiting for service to become available..."
           kubectl wait --for=condition=available --timeout=60s deployment/rick-and-morty-api
 
+      - name: Debug – Get resources and logs
+        if: always()
+        run: |
+          echo "📦 Kubernetes Resources:"
+          kubectl get all
+          echo "🔍 Describe Deployment:"
+          kubectl describe deployment rick-and-morty-api || true
+          echo "📝 Pod Logs:"
+          POD_NAME=$(kubectl get pods -l app=rick-and-morty-api -o jsonpath="{.items[0].metadata.name}")
+          kubectl logs $POD_NAME || true
+
       - name: Test healthcheck endpoint
         run: |
           POD_NAME=$(kubectl get pods -l app=rick-and-morty-api -o jsonpath="{.items[0].metadata.name}")
