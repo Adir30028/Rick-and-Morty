@@ -1,8 +1,7 @@
 replicaCount: 1
 
 image:
-  username: ""                   # ← נוסיף את שם המשתמש כאן
-  name: rick-and-morty-api                 # ← השם של התמונה עצמה
+  repository: adir3001/rick-and-morty-api    # ← שם מלא של ה-Docker Image שלך
   tag: latest
   pullPolicy: IfNotPresent
 
