@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.egg-info/
+*.egg
+*.log
+
+# Virtualenv
+venv/
+.env/
+.envrc
+pip-log.txt
+
+# PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Docker
+*.tar
+*.pid
+
+# Kubernetes
+*.yaml~*
+
+# Output files
+*.csv
+
+# Ignore Python cache
+.cache/
