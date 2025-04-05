@@ -49,18 +49,18 @@ jobs:
 
       - name: Deploy with Helm
         run: |
-          helm upgrade --install rick-api ./helm \
+          helm upgrade --install rick-and-morty-api ./helm \
             --set image.username=${{ secrets.DOCKER_USERNAME }} \
             --set image.tag=${{ env.IMAGE_TAG }}
 
       - name: Wait for service to be ready
         run: |
           echo "Waiting for service to become available..."
-          kubectl wait --for=condition=available --timeout=60s deployment/rick-api
+          kubectl wait --for=condition=available --timeout=60s deployment/rick-and-morty-api
 
       - name: Test healthcheck endpoint
         run: |
-          POD_NAME=$(kubectl get pods -l app=rick-api -o jsonpath="{.items[0].metadata.name}")
+          POD_NAME=$(kubectl get pods -l app=rick-and-morty-api -o jsonpath="{.items[0].metadata.name}")
           kubectl port-forward $POD_NAME 8080:5000 &
           sleep 5
           curl --fail http://localhost:8080/healthcheck
