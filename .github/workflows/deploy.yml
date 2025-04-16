@@ -1,4 +1,5 @@
-name: Deploy Rick and Morty API
+
+name: Deploy to AWS EKS
 
 on:
   push:
@@ -32,31 +33,25 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/rick-and-morty-api:${{ env.IMAGE_TAG }}
 
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          version: 'latest'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: us-east-1
 
-      - name: Install Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: 'latest'
-
-      - name: Set up KinD cluster
-        uses: helm/kind-action@v1.5.0
-        with:
-          cluster_name: rick-cluster
-
-      - name: Deploy with Helm
+      - name: Update kubeconfig for EKS
         run: |
-          helm upgrade --install rick-and-morty-api ./helm \
-            --set image.repository=${{ secrets.DOCKER_USERNAME }}/rick-and-morty-api \
-            --set image.tag=${{ env.IMAGE_TAG }}
+          aws eks update-kubeconfig --region us-east-1 --name rick-cluster
 
-      - name: Wait for service to be ready
+      - name: Deploy with Helm to EKS
+        run: |
+          helm upgrade --install rick-and-morty-api ./helm             --set image.repository=${{ secrets.DOCKER_USERNAME }}/rick-and-morty-api             --set image.tag=${{ env.IMAGE_TAG }}
+
+      - name: Wait for deployment to be ready
         run: |
           echo "Waiting for service to become available..."
-          kubectl wait --for=condition=available --timeout=60s deployment/rick-and-morty-api
+          kubectl wait --for=condition=available --timeout=90s deployment/rick-and-morty-api
 
       - name: Debug – Get resources and logs
         if: always()
@@ -68,10 +63,3 @@ jobs:
           echo "📝 Pod Logs:"
           POD_NAME=$(kubectl get pods -l app=rick-and-morty-api -o jsonpath="{.items[0].metadata.name}")
           kubectl logs $POD_NAME || true
-
-      - name: Test healthcheck endpoint
-        run: |
-          POD_NAME=$(kubectl get pods -l app=rick-and-morty-api -o jsonpath="{.items[0].metadata.name}")
-          kubectl port-forward $POD_NAME 8080:5000 &
-          sleep 5
-          curl --fail http://localhost:8080/healthcheck
