@@ -44,9 +44,14 @@ jobs:
         run: |
           aws eks update-kubeconfig --region us-east-1 --name rick-cluster
 
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
+
       - name: Deploy with Helm to EKS
         run: |
-          helm upgrade --install rick-and-morty-api ./helm             --set image.repository=${{ secrets.DOCKER_USERNAME }}/rick-and-morty-api             --set image.tag=${{ env.IMAGE_TAG }}
+          helm upgrade --install rick-and-morty-api ./helm \
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/rick-and-morty-api \
+            --set image.tag=${{ env.IMAGE_TAG }}
 
       - name: Wait for deployment to be ready
         run: |
